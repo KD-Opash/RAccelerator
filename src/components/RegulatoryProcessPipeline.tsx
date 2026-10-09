@@ -144,7 +144,7 @@ export function RegulatoryProcessPipeline() {
       `}</style>
 
       {/* Header */}
-      <div style={{ textAlign: "center", marginBottom: "70px" }}>
+      <div style={{ textAlign: "center", marginBottom: "90px" }}>
         <motion.h2
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -194,7 +194,7 @@ export function RegulatoryProcessPipeline() {
             fontFamily: "var(--font-sans)",
           }}
         >
-          From raw regulatory requirements to an audited Notified Body submission folder — hover over any card to bring it to the front with white lighting sheen.
+          From raw regulatory requirements to an audited Notified Body submission folder — hover over any card to bring it to the front with light green sheen.
         </p>
       </div>
 
@@ -203,11 +203,12 @@ export function RegulatoryProcessPipeline() {
         style={{
           position: "relative",
           width: "100%",
-          minHeight: "420px",
+          minHeight: "440px",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           perspective: "1200px",
+          marginTop: "10px",
         }}
         className="fanned-deck-wrapper"
         onMouseLeave={() => setHoveredIndex(null)}
@@ -245,8 +246,8 @@ export function RegulatoryProcessPipeline() {
 
             if (isHovered) {
               targetRotateZ = 0; // Pops straight upright
-              targetTranslateY = -60; // Lifts upwards
-              targetScale = 1.15; // Scales up cleanly
+              targetTranslateY = -22; // Lifts slightly without invading subtitle
+              targetScale = 1.08; // Scales up cleanly
               targetZIndex = 100; // Brings directly to FRONT!
               targetOpacity = 1;
             } else if (isAnyHovered) {
@@ -275,9 +276,9 @@ export function RegulatoryProcessPipeline() {
                 }}
                 transition={{
                   type: "spring",
-                  stiffness: 480,
-                  damping: 34,
-                  mass: 0.3,
+                  stiffness: 220,
+                  damping: 24,
+                  mass: 0.6,
                 }}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onClick={() => setActiveModalStep(step.id)}
@@ -292,16 +293,14 @@ export function RegulatoryProcessPipeline() {
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  background: isDark ? "rgba(10, 27, 46, 0.96)" : "#ffffff",
+                  background: isDark ? "#0b1d30" : "#ffffff",
                   boxShadow: isHovered
                     ? isDark
-                      ? "0 0 25px rgba(255, 255, 255, 0.9), 0 0 35px rgba(255, 255, 255, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.8), 0 20px 40px rgba(0,0,0,0.4)"
-                      : "0 0 25px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 255, 255, 0.75), inset 0 0 20px rgba(255, 255, 255, 0.85), 0 20px 40px rgba(0,0,0,0.12)"
+                      ? "0 12px 28px rgba(110, 255, 206, 0.22), 0 0 16px rgba(110, 255, 206, 0.12)"
+                      : "0 12px 28px rgba(5, 150, 105, 0.18), 0 0 14px rgba(5, 150, 105, 0.1)"
                     : "0 15px 30px rgba(0,0,0,0.15)",
                   zIndex: targetZIndex,
                   transformOrigin: "bottom center",
-                  WebkitBackdropFilter: "blur(10px)",
-                  backdropFilter: "blur(10px)",
                   willChange: "transform, opacity",
                   border: isHovered
                     ? "2px solid transparent"
@@ -310,7 +309,7 @@ export function RegulatoryProcessPipeline() {
                     : "1px solid rgba(5, 150, 105, 0.15)",
                 }}
               >
-                {/* ANIMATED PURE WHITE BORDER LIGHTING BEAM & MINIMAL SHADING ON HOVER (ALWAYS MOUNTED FOR 60FPS OPACITY FADE) */}
+                {/* ANIMATED LIGHT GREEN BORDER LIGHTING BEAM & MINIMAL SHADING ON HOVER */}
                 <div
                   style={{
                     position: "absolute",
@@ -322,12 +321,12 @@ export function RegulatoryProcessPipeline() {
                     zIndex: 1,
                   }}
                 >
-                  {/* 1. Rotating Conic White Light Beam Tracer */}
+                  {/* 1. Rotating Conic Light Green Tracer */}
                   <div
                     style={{
                       position: "absolute",
-                      inset: "-3.5px",
-                      borderRadius: "27.5px",
+                      inset: "-3px",
+                      borderRadius: "27px",
                       overflow: "hidden",
                       pointerEvents: "none",
                       zIndex: 1,
@@ -341,8 +340,8 @@ export function RegulatoryProcessPipeline() {
                         width: "250%",
                         height: "250%",
                         background: isDark
-                          ? "conic-gradient(from 0deg at 50% 50%, #ffffff 0deg, rgba(255, 255, 255, 0.95) 40deg, rgba(110, 255, 206, 0.2) 80deg, transparent 150deg, #ffffff 180deg, rgba(255, 255, 255, 0.9) 220deg, rgba(52, 211, 153, 0.15) 260deg, transparent 330deg, #ffffff 360deg)"
-                          : "conic-gradient(from 0deg at 50% 50%, #ffffff 0deg, rgba(255, 255, 255, 0.98) 40deg, rgba(16, 185, 129, 0.15) 80deg, transparent 150deg, #ffffff 180deg, rgba(255, 255, 255, 0.95) 220deg, rgba(5, 150, 105, 0.12) 260deg, transparent 330deg, #ffffff 360deg)",
+                          ? "conic-gradient(from 0deg at 50% 50%, #6effce 0deg, rgba(110, 255, 206, 0.7) 40deg, rgba(52, 211, 153, 0.2) 80deg, transparent 150deg, #6effce 180deg, rgba(110, 255, 206, 0.6) 220deg, rgba(52, 211, 153, 0.15) 260deg, transparent 330deg, #6effce 360deg)"
+                          : "conic-gradient(from 0deg at 50% 50%, #059669 0deg, rgba(5, 150, 105, 0.7) 40deg, rgba(16, 185, 129, 0.2) 80deg, transparent 150deg, #059669 180deg, rgba(5, 150, 105, 0.6) 220deg, rgba(16, 185, 129, 0.15) 260deg, transparent 330deg, #059669 360deg)",
                         animation: "rotateBorderBeam 8s linear infinite",
                         willChange: "transform",
                       }}
@@ -513,6 +512,7 @@ export function RegulatoryProcessPipeline() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
             onClick={() => setActiveModalStep(null)}
             style={{
               position: "fixed",
@@ -527,9 +527,10 @@ export function RegulatoryProcessPipeline() {
             }}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.88, y: 35, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.88, y: 35, opacity: 0 }}
+              transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
               onClick={(e) => e.stopPropagation()}
               className="glass-panel"
               style={{

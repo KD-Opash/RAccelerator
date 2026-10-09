@@ -207,8 +207,8 @@ export default function GsprHealthScene() {
   const isDark = theme === "dark";
 
   return (
-    <div style={{ width: "100%", height: "320px", position: "relative" }}>
-      <Canvas camera={{ position: [0, 0, 5.0], fov: 45 }} style={{ background: "transparent" }}>
+    <div style={{ width: "100%", height: "400px", position: "relative" }}>
+      <Canvas camera={{ position: [0, 0, 5.5], fov: 45 }} style={{ background: "transparent" }}>
         <ambientLight intensity={isDark ? 1.3 : 1.7} />
         <pointLight position={[6, 6, 6]} intensity={2.8} color="#ffffff" />
         <directionalLight position={[5, 8, 5]} intensity={2.4} color={isDark ? "#cbd5e1" : "#ffffff"} />

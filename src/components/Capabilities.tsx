@@ -78,14 +78,14 @@ export function Capabilities() {
     <section
       id="section-capabilities"
       style={{
-        padding: "80px 24px 0px",
+        padding: "80px 24px 70px",
         maxWidth: "1280px",
         margin: "0 auto",
         position: "relative",
       }}
     >
       {/* 1. SECTION TITLE & SUBTITLE */}
-      <div style={{ textAlign: "center", marginBottom: "32px" }}>
+      <div style={{ textAlign: "center", marginBottom: "60px" }}>
         <motion.h2
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -126,189 +126,260 @@ export function Capabilities() {
         </motion.h2>
       </div>
 
-      {/* 2. JOINT CONNECTED MENU BAR (DIRECTLY BELOW TITLE - IMAGE 2 STYLE) */}
+      {/* 2. MAIN 2-COLUMN LAYOUT: VERTICAL MENU ON LEFT | CONTENT & 3D SCENE ON RIGHT */}
       <div
+        className="capabilities-grid-layout"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(6, 1fr)",
-          maxWidth: "1160px",
-          margin: "0 auto 36px",
-          borderRadius: "16px",
-          overflow: "hidden",
-          background: isDark ? "rgba(10, 27, 46, 0.75)" : "#f1f5f9",
-          border: isDark ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid rgba(5, 150, 105, 0.2)",
-          padding: "5px",
-          boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.35)" : "0 8px 24px rgba(0,0,0,0.06)",
+          gridTemplateColumns: "320px 1fr",
+          gap: "36px",
+          alignItems: "stretch",
+          maxWidth: "1200px",
+          margin: "0 auto",
         }}
-        className="joint-menu-bar"
       >
-        {capabilities.map((cap, index) => {
-          const Icon = cap.icon;
-          const isSelected = activeCapability === index;
+        {/* LEFT COLUMN: VERTICAL CONNECTED MENU BAR (HEIGHT MATCHES RIGHT COLUMN) */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            height: "100%",
+            borderRadius: "16px",
+            overflow: "hidden",
+            background: isDark ? "rgba(10, 27, 46, 0.75)" : "#f1f5f9",
+            border: isDark ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid rgba(5, 150, 105, 0.2)",
+            padding: "6px",
+            boxShadow: isDark ? "0 10px 30px rgba(0,0,0,0.35)" : "0 8px 24px rgba(0,0,0,0.06)",
+          }}
+        >
+          {capabilities.map((cap, index) => {
+            const Icon = cap.icon;
+            const isSelected = activeCapability === index;
 
-          return (
-            <button
-              key={cap.title}
-              onMouseEnter={() => setActiveCapability(index)}
-              onClick={() => setActiveCapability(index)}
-              style={{
-                position: "relative",
-                padding: "16px 8px",
-                border: "none",
-                background: "transparent",
-                cursor: "pointer",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                textAlign: "center",
-                zIndex: 2,
-                borderRight: index < 5 ? (isDark ? "1px solid rgba(255, 255, 255, 0.08)" : "1px solid rgba(0,0,0,0.06)") : "none",
-              }}
-            >
-              {/* Active Sliding Background Pill (Smooth Spring Motion) */}
-              {isSelected && (
-                <motion.div
-                  layoutId="jointTabActivePill"
-                  transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    borderRadius: "12px",
-                    background: isDark
-                      ? "linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(110, 255, 206, 0.22) 100%)"
-                      : "#ffffff",
-                    border: isDark ? "1px solid rgba(110, 255, 206, 0.5)" : "1px solid rgba(5, 150, 105, 0.3)",
-                    boxShadow: isDark
-                      ? "0 0 22px rgba(110, 255, 206, 0.35), inset 0 0 10px rgba(255, 255, 255, 0.15)"
-                      : "0 4px 18px rgba(0,0,0,0.08), 0 0 15px rgba(5, 150, 105, 0.2)",
-                    zIndex: -1,
-                  }}
-                />
-              )}
-
-              {/* Icon */}
-              <Icon
-                size={19}
+            return (
+              <button
+                key={cap.title}
+                onMouseEnter={() => setActiveCapability(index)}
+                onClick={() => setActiveCapability(index)}
                 style={{
-                  color: isSelected ? brandLogoColor : isDark ? "#94a3b8" : "#64748b",
-                  transition: "color 0.2s ease",
-                }}
-              />
-
-              {/* Title Text */}
-              <span
-                style={{
-                  fontSize: "12.5px",
-                  fontWeight: isSelected ? 850 : 650,
-                  color: isSelected
-                    ? isDark
-                      ? "#ffffff"
-                      : "#0f172a"
-                    : isDark
-                    ? "#94a3b8"
-                    : "#64748b",
-                  lineHeight: 1.25,
-                  transition: "color 0.2s ease",
+                  position: "relative",
+                  flex: 1,
+                  padding: "14px 18px",
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                  textAlign: "left",
+                  zIndex: 2,
+                  borderRadius: "12px",
+                  borderBottom:
+                    index < 5
+                      ? isDark
+                        ? "1px solid rgba(255, 255, 255, 0.06)"
+                        : "1px solid rgba(0,0,0,0.05)"
+                      : "none",
                 }}
               >
-                {cap.title}
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                {/* Active Sliding Background Pill (Vertical Motion) */}
+                {isSelected && (
+                  <motion.div
+                    layoutId="jointTabActivePill"
+                    transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      borderRadius: "12px",
+                      background: isDark
+                        ? "linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(110, 255, 206, 0.22) 100%)"
+                        : "#ffffff",
+                      border: isDark ? "1px solid rgba(110, 255, 206, 0.5)" : "1px solid rgba(5, 150, 105, 0.3)",
+                      boxShadow: isDark
+                        ? "0 0 22px rgba(110, 255, 206, 0.35), inset 0 0 10px rgba(255, 255, 255, 0.15)"
+                        : "0 4px 18px rgba(0,0,0,0.08), 0 0 15px rgba(5, 150, 105, 0.2)",
+                      zIndex: -1,
+                    }}
+                  />
+                )}
 
-      {/* 3. MIDDLE: ACTIVE DESCRIPTION TEXT BLOCK */}
-      <div
-        style={{
-          minHeight: "100px",
-          textAlign: "center",
-          marginBottom: "28px",
-          padding: "0 16px",
-        }}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeCapability}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
-            style={{ maxWidth: "780px", margin: "0 auto" }}
+                {/* Icon Container */}
+                <div
+                  style={{
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "10px",
+                    background: isSelected
+                      ? isDark
+                        ? "rgba(110, 255, 206, 0.18)"
+                        : "rgba(5, 150, 105, 0.12)"
+                      : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  <Icon
+                    size={20}
+                    style={{
+                      color: isSelected ? brandLogoColor : isDark ? "#94a3b8" : "#64748b",
+                      transition: "color 0.2s ease",
+                    }}
+                  />
+                </div>
+
+                {/* Title & Step Number */}
+                <div style={{ flex: 1 }}>
+                  <div
+                    style={{
+                      fontSize: "10px",
+                      fontFamily: "var(--font-mono)",
+                      fontWeight: 700,
+                      color: isSelected ? brandLogoColor : isDark ? "#64748b" : "#94a3b8",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    CAPABILITY {cap.number}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "13.5px",
+                      fontWeight: isSelected ? 850 : 650,
+                      color: isSelected
+                        ? isDark
+                          ? "#ffffff"
+                          : "#0f172a"
+                        : isDark
+                        ? "#94a3b8"
+                        : "#64748b",
+                      lineHeight: 1.25,
+                      transition: "color 0.2s ease",
+                    }}
+                  >
+                    {cap.title}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* RIGHT COLUMN: ACTIVE DESCRIPTION HEADER & 3D ANIMATION STAGE */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            minHeight: "520px",
+          }}
+        >
+          {/* Active Capability Title & Description */}
+          <div style={{ marginBottom: "20px" }}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeCapability}
+                initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              >
+                <div
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: 850,
+                    color: isDark ? "#ffffff" : "#0f172a",
+                    marginBottom: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                  }}
+                >
+                  <span>{capabilities[activeCapability].title}</span>
+                  <Sparkles size={18} style={{ color: brandLogoColor }} />
+                </div>
+
+                <p
+                  style={{
+                    fontSize: "15px",
+                    lineHeight: 1.65,
+                    color: isDark ? "#cbd5e1" : "#475569",
+                    margin: 0,
+                    fontWeight: 450,
+                    fontFamily: "var(--font-sans)",
+                    maxWidth: "720px",
+                  }}
+                >
+                  {capabilities[activeCapability].desc}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* 3D WebGL Animation Stage (Expanded Height - No Bottom Cutoff) */}
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              minHeight: "420px",
+              height: "420px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: "transparent",
+              border: "none",
+              padding: "0px",
+            }}
           >
-            <div
-              style={{
-                fontSize: "22px",
-                fontWeight: 850,
-                color: isDark ? "#ffffff" : "#0f172a",
-                marginBottom: "8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-              }}
-            >
-              <span>{capabilities[activeCapability].title}</span>
-              <Sparkles size={16} style={{ color: brandLogoColor }} />
+            <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+              {[
+                GsprHealthScene,
+                DeviceClassificationScene,
+                RemediationTimelineScene,
+                DocumentParserScene,
+                ReportingRadarScene,
+                TraceabilityVaultScene,
+              ].map((SceneComponent, idx) => {
+                const isCurrent = activeCapability === idx;
+                return (
+                  <motion.div
+                    key={idx}
+                    initial={false}
+                    animate={{
+                      opacity: isCurrent ? 1 : 0,
+                      scale: isCurrent ? 1 : 0.95,
+                      filter: isCurrent ? "blur(0px)" : "blur(6px)",
+                    }}
+                    transition={{
+                      duration: 0.45,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                    style={{
+                      position: isCurrent ? "relative" : "absolute",
+                      inset: 0,
+                      width: "100%",
+                      pointerEvents: isCurrent ? "auto" : "none",
+                      visibility: isCurrent ? "visible" : "hidden",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <SceneComponent />
+                  </motion.div>
+                );
+              })}
             </div>
-
-            <p
-              style={{
-                fontSize: "15px",
-                lineHeight: 1.65,
-                color: isDark ? "#cbd5e1" : "#475569",
-                margin: 0,
-                fontWeight: 450,
-                fontFamily: "var(--font-sans)",
-              }}
-            >
-              {capabilities[activeCapability].desc}
-            </p>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      {/* 4. BOTTOM: 3D WEBGL ANIMATION STAGE (SMOOTH SPRING TRANSITION) */}
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          minHeight: "320px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeCapability}
-            initial={{ opacity: 0, scale: 0.93, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.93, y: -16 }}
-            transition={{ duration: 0.38, ease: "easeOut" }}
-            style={{ width: "100%", display: "flex", justifyContent: "center" }}
-          >
-            {activeCapability === 0 && <GsprHealthScene />}
-            {activeCapability === 1 && <DeviceClassificationScene />}
-            {activeCapability === 2 && <RemediationTimelineScene />}
-            {activeCapability === 3 && <DocumentParserScene />}
-            {activeCapability === 4 && <ReportingRadarScene />}
-            {activeCapability === 5 && <TraceabilityVaultScene />}
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </div>
       </div>
 
       <style jsx global>{`
-        @media (max-width: 1024px) {
-          .joint-menu-bar {
-            grid-template-columns: repeat(3, 1fr) !important;
-          }
-        }
-        @media (max-width: 640px) {
-          .joint-menu-bar {
-            grid-template-columns: repeat(2, 1fr) !important;
+        @media (max-width: 900px) {
+          .capabilities-grid-layout {
+            grid-template-columns: 1fr !important;
           }
         }
       `}</style>

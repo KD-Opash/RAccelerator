@@ -7,11 +7,16 @@ import { useTheme } from "./ThemeProvider";
 
 function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }) {
   const [isHovered, setIsHovered] = useState(false);
-  const [radius, setRadius] = useState(480);
+  const [hoveredCardIdx, setHoveredCardIdx] = useState<number | null>(null);
+  const [radius, setRadius] = useState(640);
+  const [cardWidth, setCardWidth] = useState(300);
   const [currentAngle, setCurrentAngle] = useState(0);
   const angleRef = useRef(0);
   const isHoveredRef = useRef(false);
-  const total = items.length;
+
+  // Duplicate items to form a 12-card continuous 3D ring (matching image 2 spacing)
+  const displayItems = useRef([...items, ...items]).current;
+  const total = displayItems.length; // 12
 
   useEffect(() => {
     isHoveredRef.current = isHovered;
@@ -20,11 +25,14 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
-        setRadius(240);
+        setRadius(300);
+        setCardWidth(230);
       } else if (window.innerWidth < 1024) {
-        setRadius(360);
+        setRadius(450);
+        setCardWidth(260);
       } else {
-        setRadius(480);
+        setRadius(640);
+        setCardWidth(300);
       }
     };
     handleResize();
@@ -40,8 +48,9 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
       const delta = Math.min(now - lastTime, 50);
       lastTime = now;
 
+      // Lock rotation immediately on hover so cards stay frozen at exact position
       if (!isHoveredRef.current) {
-        angleRef.current = (angleRef.current + delta * 0.014) % 360;
+        angleRef.current = (angleRef.current + delta * 0.005) % 360;
         setCurrentAngle(angleRef.current);
       }
       animId = requestAnimationFrame(loop);
@@ -52,21 +61,28 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
   }, []);
 
   const handlePan = (_e: any, info: any) => {
-    angleRef.current = (angleRef.current - info.delta.x * 0.35) % 360;
+    angleRef.current = (angleRef.current - info.delta.x * 0.2) % 360;
     setCurrentAngle(angleRef.current);
   };
 
   return (
     <div
-      style={{ position: "relative", width: "100%", padding: "10px 0 20px" }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      style={{ position: "relative", width: "100%", padding: "0" }}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        isHoveredRef.current = true;
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        isHoveredRef.current = false;
+        setHoveredCardIdx(null);
+      }}
     >
       {/* 3D Scene Viewport */}
       <motion.div
         onPan={handlePan}
         style={{
-          height: "390px",
+          height: "300px",
           width: "100%",
           position: "relative",
           perspective: "1400px",
@@ -83,17 +99,17 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
         <div
           style={{
             position: "relative",
-            width: "280px",
-            height: "230px",
+            width: `${cardWidth}px`,
+            height: "235px",
             transformStyle: "preserve-3d",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           }}
         >
-          {items.map((item, idx) => {
+          {displayItems.map((item, idx) => {
             const Icon = item.icon;
-            const angleStep = 360 / total;
+            const angleStep = 360 / total; // 30 deg
             const cardBaseAngle = idx * angleStep;
             const totalAngle = (cardBaseAngle + currentAngle) % 360;
             let relAngle = ((totalAngle % 360) + 540) % 360 - 180;
@@ -103,56 +119,48 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
             const z = Math.cos(radAngle) * radius - radius;
             const rotateY = relAngle;
 
-            const distFromFront = Math.abs(relAngle);
-            const isFrontmost = distFromFront < angleStep / 2;
-
             const cosVal = Math.cos(radAngle);
-            // Show cards clearly across the front ring arc (cosVal > -0.2)
-            const opacity = cosVal < -0.2 ? 0 : Math.min(1, Math.max(0.45, cosVal * 1.15));
-            const scale = isFrontmost ? 1.05 : Math.max(0.85, 0.85 + cosVal * 0.15);
-            const zIndex = Math.round(100 + cosVal * 100);
-
-            if (opacity === 0) return null;
+            // Continuous smooth opacity fade across front cylinder arc (0 blinking)
+            const rawOpacity = (cosVal + 0.45) / 1.45;
+            const opacity = Math.max(0, Math.min(1, rawOpacity));
+            const isCardHovered = hoveredCardIdx === idx;
+            const scale = isCardHovered ? 1.08 : Math.max(0.82, 0.82 + Math.max(0, cosVal) * 0.18);
+            const zIndex = isCardHovered ? 300 : Math.round((cosVal + 1) * 100);
 
             return (
               <div
-                key={item.title}
+                key={`${item.title}-${idx}`}
+                onMouseEnter={() => setHoveredCardIdx(idx)}
+                onMouseLeave={() => setHoveredCardIdx(null)}
                 style={{
                   position: "absolute",
-                  width: "280px",
-                  height: "230px",
+                  width: `${cardWidth}px`,
+                  height: "235px",
                   borderRadius: "20px",
-                  padding: "22px",
+                  padding: "24px",
                   zIndex,
                   transform: `translate3d(${x}px, 0px, ${z}px) rotateY(${rotateY}deg) scale(${scale})`,
                   opacity,
-                  transition: isHovered ? "transform 0.12s ease-out, opacity 0.2s ease" : "none",
-                  background: isFrontmost
+                  willChange: "transform, opacity",
+                  transition: isHovered
+                    ? "transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease"
+                    : "none",
+                  background: isDark ? "#0b1d30" : "var(--bg-card)",
+                  border: "none",
+                  boxShadow: isCardHovered
                     ? isDark
-                      ? "linear-gradient(145deg, rgba(16, 40, 36, 0.96) 0%, rgba(6, 22, 20, 0.98) 100%)"
-                      : "linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%)"
+                      ? "0 16px 45px rgba(0, 0, 0, 0.45), 0 0 30px rgba(110, 255, 206, 0.22)"
+                      : "0 16px 35px rgba(5, 150, 105, 0.18)"
                     : isDark
-                    ? "rgba(10, 22, 28, 0.85)"
-                    : "rgba(255, 255, 255, 0.92)",
-                  backdropFilter: "blur(14px)",
-                  border: isFrontmost
-                    ? isDark
-                      ? "2px solid #6effce"
-                      : "2px solid #059669"
-                    : isDark
-                    ? "1px solid rgba(255, 255, 255, 0.12)"
-                    : "1px solid rgba(5, 150, 105, 0.25)",
-                  boxShadow: isFrontmost
-                    ? isDark
-                      ? "0 15px 40px rgba(110, 255, 206, 0.28), 0 0 25px rgba(110, 255, 206, 0.18)"
-                      : "0 15px 35px rgba(5, 150, 105, 0.22)"
-                    : "0 8px 24px rgba(0, 0, 0, 0.12)",
+                    ? "0 10px 30px rgba(0, 0, 0, 0.3), 0 0 18px rgba(110, 255, 206, 0.09)"
+                    : "0 8px 24px rgba(5, 150, 105, 0.08)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
                   userSelect: "none",
                   WebkitUserSelect: "none",
                   backfaceVisibility: "hidden",
+                  cursor: "pointer",
                 }}
               >
                 <div>
@@ -169,29 +177,30 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
                         width: "42px",
                         height: "42px",
                         borderRadius: "12px",
-                        background: isFrontmost
+                        background: isCardHovered
                           ? isDark
                             ? "rgba(110, 255, 206, 0.2)"
                             : "rgba(5, 150, 105, 0.15)"
-                          : "var(--accent-mint-bg)",
-                        border: isFrontmost
+                          : isDark
+                          ? "rgba(110, 255, 206, 0.1)"
+                          : "rgba(5, 150, 105, 0.08)",
+                        border: isCardHovered
                           ? isDark
                             ? "1px solid #6effce"
                             : "1px solid #059669"
-                          : "1px solid var(--border-subtle)",
+                          : isDark
+                          ? "1px solid rgba(110, 255, 206, 0.25)"
+                          : "1px solid rgba(5, 150, 105, 0.2)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: isFrontmost
-                          ? isDark
-                            ? "#6effce"
-                            : "#059669"
-                          : "var(--accent-mint)",
+                        color: isDark ? "#6effce" : "#059669",
+                        transition: "all 0.2s ease",
                       }}
                     >
                       <Icon size={20} />
                     </div>
-                    {isFrontmost && (
+                    {isCardHovered && (
                       <span
                         style={{
                           fontSize: "9.5px",
@@ -199,10 +208,15 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
                           letterSpacing: "1px",
                           textTransform: "uppercase",
                           color: isDark ? "#6effce" : "#059669",
-                          background: isDark ? "rgba(110, 255, 206, 0.15)" : "rgba(5, 150, 105, 0.12)",
-                          padding: "3.5px 7.5px",
+                          background: isDark
+                            ? "rgba(110, 255, 206, 0.15)"
+                            : "rgba(5, 150, 105, 0.12)",
+                          padding: "4px 8px",
                           borderRadius: "6px",
                           fontFamily: "var(--font-mono)",
+                          border: isDark
+                            ? "1px solid rgba(110, 255, 206, 0.25)"
+                            : "1px solid rgba(5, 150, 105, 0.18)",
                         }}
                       >
                         ACTIVE VERIFIED
@@ -211,17 +225,18 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
                   </div>
                   <h3
                     style={{
-                      fontSize: "16px",
+                      fontSize: "17px",
                       fontWeight: 800,
                       color: isDark ? "#ffffff" : "#0f172a",
                       marginBottom: "6px",
+                      letterSpacing: "-0.01em",
                     }}
                   >
                     {item.title}
                   </h3>
                   <p
                     style={{
-                      fontSize: "12px",
+                      fontSize: "12.5px",
                       lineHeight: 1.5,
                       color: isDark ? "#94a3b8" : "#475569",
                       margin: 0,
@@ -236,7 +251,7 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
                     fontSize: "10.5px",
                     fontFamily: "var(--font-mono)",
                     fontWeight: 700,
-                    color: isFrontmost
+                    color: isCardHovered
                       ? isDark
                         ? "#6effce"
                         : "#059669"
@@ -246,12 +261,15 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",
-                    borderTop: isDark ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(0,0,0,0.06)",
-                    paddingTop: "8px",
+                    borderTop: isDark
+                      ? "1px solid rgba(255, 255, 255, 0.08)"
+                      : "1px solid rgba(0, 0, 0, 0.06)",
+                    paddingTop: "10px",
                     marginTop: "8px",
+                    transition: "color 0.2s ease",
                   }}
                 >
-                  <span style={{ fontSize: "13px" }}>✓</span> {item.badge}
+                  <span style={{ fontSize: "12.5px" }}>✓</span> {item.badge}
                 </div>
               </div>
             );
@@ -309,15 +327,14 @@ export function SecuritySection() {
     <section
       id="section-security"
       style={{
-        padding: "90px 24px",
-        background: "var(--bg-secondary)",
-        borderTop: "1px solid var(--border-subtle)",
-        borderBottom: "1px solid var(--border-subtle)",
+        padding: "50px 24px 30px",
+        background: "transparent",
+        border: "none",
       }}
     >
       <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
           <motion.h2
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -350,7 +367,7 @@ export function SecuritySection() {
                 fontSize: "clamp(24px, 3.5vw, 38px)",
                 color: isDark ? "#ffffff" : "#0f172a",
                 letterSpacing: "1px",
-                marginTop: "2px",
+                marginTop: "4px",
               }}
             >
               Built for Regulated Industries
@@ -358,8 +375,8 @@ export function SecuritySection() {
           </motion.h2>
         </div>
 
-        {/* 3D Circular Carousel (ReactBits style) replacing static grid & centerpiece */}
-        <div style={{ marginBottom: "40px" }}>
+        {/* 3D Circular Carousel matching ReactBits images 2 & 3 */}
+        <div style={{ marginBottom: "12px" }}>
           <Circular3DCarousel items={securityItems} isDark={isDark} />
         </div>
 
@@ -377,16 +394,20 @@ export function SecuritySection() {
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "10px",
-              padding: "12px 24px",
-              borderRadius: "12px",
-              background: "var(--bg-card)",
-              border: "1px solid var(--border-subtle)",
-              fontSize: "13px",
-              color: "var(--text-secondary)",
+              gap: "12px",
+              padding: "14px 28px",
+              borderRadius: "14px",
+              background: isDark ? "#0b1d30" : "var(--bg-card)",
+              border: isDark
+                ? "1px solid rgba(110, 255, 206, 0.2)"
+                : "1px solid var(--border-subtle)",
+              fontSize: "13.5px",
+              fontWeight: 500,
+              color: isDark ? "#cbd5e1" : "var(--text-secondary)",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.06)",
             }}
           >
-            <Globe size={18} style={{ color: "var(--accent-mint)" }} />
+            <Globe size={19} style={{ color: isDark ? "#6effce" : "var(--accent-mint)" }} />
             <span>
               All data hosted in EU-based infrastructure. Available for on-premise deployment for enterprise clients.
             </span>
@@ -396,4 +417,7 @@ export function SecuritySection() {
     </section>
   );
 }
+
+
+
 

@@ -25,7 +25,7 @@ function PolygonTunnelVortex() {
     const count = 14;
     for (let i = 0; i < count; i++) {
       const progress = i / (count - 1); // 0 to 1
-      const radius = 2.3 * Math.pow(0.78, i); // Scaling down inwards
+      const radius = 2.0 * Math.pow(0.78, i); // Scaled to fit canvas 100%
       const z = 0.8 - progress * 2.8;         // Depth tunnel
       const rotZ = i * 0.15;                  // Twisted geometric angle
       const opacity = 0.95 - progress * 0.45;
@@ -41,7 +41,7 @@ function PolygonTunnelVortex() {
     for (let i = 0; i < 180; i++) {
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
-      const r = 1.6 + Math.random() * 1.4;
+      const r = 1.4 + Math.random() * 1.2;
       pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
       pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
       pos[i * 3 + 2] = r * Math.cos(phi);
@@ -127,10 +127,10 @@ function PolygonTunnelVortex() {
 
           {/* Floating Starlight Verification Nodes */}
           {[
-            [-1.5, 1.2, 0.2],
-            [1.5, 1.2, 0.2],
-            [-1.5, -1.2, -0.4],
-            [1.5, -1.2, -0.4],
+            [-1.3, 0.95, 0.2],
+            [1.3, 0.95, 0.2],
+            [-1.3, -0.95, -0.4],
+            [1.3, -0.95, -0.4],
           ].map((pos, idx) => (
             <Sphere key={idx} args={[0.045, 12, 12]} position={pos as [number, number, number]}>
               <meshStandardMaterial color={whiteColor} emissive={primaryGreen} emissiveIntensity={1.3} />
@@ -147,8 +147,8 @@ export default function TraceabilityVaultScene() {
   const isDark = theme === "dark";
 
   return (
-    <div style={{ width: "100%", height: "320px", position: "relative" }}>
-      <Canvas camera={{ position: [0, 0, 5.0], fov: 45 }} style={{ background: "transparent" }}>
+    <div style={{ width: "100%", height: "400px", position: "relative" }}>
+      <Canvas camera={{ position: [0, 0, 5.8], fov: 45 }} style={{ background: "transparent" }}>
         <ambientLight intensity={isDark ? 1.3 : 1.7} />
         <pointLight position={[6, 6, 6]} intensity={2.8} color="#ffffff" />
         <directionalLight position={[5, 8, 5]} intensity={2.5} color={isDark ? "#6effce" : "#059669"} />

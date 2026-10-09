@@ -27,17 +27,17 @@ function GalaxyGlitterCanvas() {
     };
     window.addEventListener("resize", handleResize);
 
-    // 220 Galaxy Glitter Small Point Stars
-    const starCount = 220;
+    // 160 Galaxy Glitter Small Point Stars
+    const starCount = 160;
     const stars = Array.from({ length: starCount }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      radius: Math.random() * 1.6 + 0.5, // Small small points
-      baseAlpha: Math.random() * 0.5 + 0.25,
-      twinkleSpeed: Math.random() * 0.05 + 0.015,
+      radius: Math.random() * 1.4 + 0.4, // Soft light points
+      baseAlpha: Math.random() * 0.25 + 0.1,
+      twinkleSpeed: Math.random() * 0.04 + 0.01,
       phase: Math.random() * Math.PI * 2,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: (Math.random() - 0.5) * 0.2,
       color: Math.random() > 0.35
         ? (isDark ? "#6effce" : "#059669")
         : (Math.random() > 0.5 ? "#38bdf8" : "#ffffff"),
@@ -62,14 +62,14 @@ function GalaxyGlitterCanvas() {
         if (s.y < 0) s.y = height;
         if (s.y > height) s.y = 0;
 
-        const alpha = Math.max(0.12, s.baseAlpha + Math.sin(time * s.twinkleSpeed * 10 + s.phase) * 0.4);
+        const alpha = Math.max(0.06, s.baseAlpha + Math.sin(time * s.twinkleSpeed * 10 + s.phase) * 0.18);
 
         ctx.beginPath();
         ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
         ctx.fillStyle = s.color;
         ctx.globalAlpha = alpha;
         ctx.shadowColor = s.color;
-        ctx.shadowBlur = s.radius * 3.5;
+        ctx.shadowBlur = s.radius * 2;
         ctx.fill();
         ctx.globalAlpha = 1.0;
         ctx.shadowBlur = 0;

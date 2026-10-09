@@ -95,8 +95,8 @@ export function AnimatedBackground() {
 
           // Depth opacity fade - soft ambient glow for high UI contrast
           const depthRatio = 1 - iz / AMOUNT_Z;
-          const alpha = Math.max(0.08, depthRatio * depthRatio * (isDark ? 0.65 : 0.45));
-          const particleRadius = Math.max(0.7, 3.0 * scale);
+          const alpha = Math.max(0.04, depthRatio * depthRatio * (isDark ? 0.32 : 0.22));
+          const particleRadius = Math.max(0.6, 2.5 * scale);
 
           // Luminous color blend based on wave peaks
           const waveRatio = (Math.sin(ix * 0.14 + iz * 0.09 + count * 1.2) + 1) / 2;
@@ -124,8 +124,8 @@ export function AnimatedBackground() {
             const nextProjY = centerY + nextY * nextScale;
 
             if (Math.abs(projX - nextProjX) < 170) {
-              ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.25})`;
-              ctx.lineWidth = 0.6 * scale;
+              ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.15})`;
+              ctx.lineWidth = 0.5 * scale;
               ctx.beginPath();
               ctx.moveTo(projX, projY);
               ctx.lineTo(nextProjX, nextProjY);
@@ -156,9 +156,9 @@ export function AnimatedBackground() {
         height: "100vh",
         pointerEvents: "none",
         zIndex: 0,
-        opacity: 0.42,
-        filter: "blur(3px)",
-        WebkitFilter: "blur(3px)",
+        opacity: 0.22,
+        filter: "blur(2px)",
+        WebkitFilter: "blur(2px)",
         transition: "opacity 0.3s ease",
       }}
     />

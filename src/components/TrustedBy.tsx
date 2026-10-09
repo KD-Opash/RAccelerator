@@ -1,55 +1,120 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "./ThemeProvider";
 import { Quote, ArrowRight } from "lucide-react";
 
-function TestimonialCard({ item, index }: { item: any; index: number }) {
+function HoloTestimonialCard({ item, index }: { item: any; index: number }) {
   const isLeft = index === 0;
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [transform, setTransform] = useState("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+  const [holoPos, setHoloPos] = useState({ x: 50, y: 50, opacity: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const xPercent = (x / rect.width - 0.5) * 2; // -1 to 1
+    const yPercent = (y / rect.height - 0.5) * 2; // -1 to 1
+
+    const rotateX = -yPercent * 14; // 3D tilt X
+    const rotateY = xPercent * 14;  // 3D tilt Y
+
+    setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
+    setHoloPos({
+      x: (x / rect.width) * 100,
+      y: (y / rect.height) * 100,
+      opacity: 1,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setTransform("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
+    setHoloPos((prev) => ({ ...prev, opacity: 0 }));
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, x: isLeft ? -110 : 110 }}
       whileInView={{ opacity: 1, x: 0 }}
-      whileHover={{ y: -10, scale: 1.02 }}
       viewport={{ once: false, amount: 0.2 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      style={{ perspective: "1000px" }}
     >
       <div
-        className="glass-panel"
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
         style={{
-          borderRadius: "20px",
-          padding: "28px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          minHeight: "240px",
-          boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+          transform,
+          transformStyle: "preserve-3d",
+          transition: "transform 0.15s ease-out, box-shadow 0.3s ease",
+          position: "relative",
+          borderRadius: "22px",
+          overflow: "hidden",
           cursor: "pointer",
-          transition: "border-color 0.3s ease, box-shadow 0.3s ease",
         }}
       >
-        <div>
-          <Quote size={32} style={{ color: "var(--accent-mint)", opacity: 0.6, marginBottom: "12px" }} />
-          <p
-            style={{
-              fontSize: "16px",
-              lineHeight: 1.7,
-              fontStyle: "italic",
-              color: "var(--text-primary)",
-              marginBottom: "20px",
-            }}
-          >
-            "{item.quote}"
-          </p>
-        </div>
-        <div>
-          <div style={{ fontSize: "14.5px", fontWeight: 800, color: "var(--accent-mint)" }}>
-            {item.role}
+        {/* Subtle Light Green Cursor Spotlight Overlay */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            zIndex: 2,
+            borderRadius: "22px",
+            opacity: holoPos.opacity,
+            transition: "opacity 0.3s ease",
+            background: `radial-gradient(circle at ${holoPos.x}% ${holoPos.y}%, rgba(110, 255, 206, 0.18) 0%, transparent 60%)`,
+          }}
+        />
+
+        {/* Inner Content Panel */}
+        <div
+          className="glass-panel"
+          style={{
+            borderRadius: "22px",
+            padding: "30px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            minHeight: "250px",
+            background: "var(--bg-card)",
+            border: holoPos.opacity > 0
+              ? "2px solid #6effce"
+              : "1px solid var(--border-subtle)",
+            boxShadow: holoPos.opacity > 0
+              ? "0 22px 45px rgba(0, 0, 0, 0.45), 0 0 30px rgba(110, 255, 206, 0.28)"
+              : "0 10px 30px rgba(0, 0, 0, 0.15)",
+            position: "relative",
+            zIndex: 1,
+            transition: "border-color 0.3s ease, box-shadow 0.3s ease",
+          }}
+        >
+          <div>
+            <Quote size={32} style={{ color: "var(--accent-mint)", opacity: 0.75, marginBottom: "14px" }} />
+            <p
+              style={{
+                fontSize: "16px",
+                lineHeight: 1.7,
+                fontStyle: "italic",
+                color: "var(--text-primary)",
+                marginBottom: "20px",
+              }}
+            >
+              "{item.quote}"
+            </p>
           </div>
-          <div style={{ fontSize: "12.5px", color: "var(--text-muted)", marginTop: "2px" }}>
-            {item.company}
+          <div>
+            <div style={{ fontSize: "15px", fontWeight: 800, color: "var(--accent-mint)" }}>
+              {item.role}
+            </div>
+            <div style={{ fontSize: "13px", color: "var(--text-muted)", marginTop: "2px" }}>
+              {item.company}
+            </div>
           </div>
         </div>
       </div>
@@ -168,7 +233,7 @@ export function TrustedBy() {
         ))}
       </motion.div>
 
-      {/* Testimonials Grid (Original Content with Hover 3D 360 Flip & Scroll Entrance) */}
+      {/* Testimonials Grid with ReactBits Holo Card Hover Effect */}
       <div
         style={{
           display: "grid",
@@ -179,11 +244,11 @@ export function TrustedBy() {
         className="testimonials-grid"
       >
         {testimonials.map((item, idx) => (
-          <TestimonialCard key={item.role} item={item} index={idx} />
+          <HoloTestimonialCard key={item.role} item={item} index={idx} />
         ))}
       </div>
 
-      {/* Case Study Feature Card (Enters from Bottom every time) */}
+      {/* Case Study Feature Card */}
       <motion.div
         initial={{ opacity: 0, y: 80 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -334,3 +399,4 @@ export function TrustedBy() {
 }
 
 export default TrustedBy;
+
