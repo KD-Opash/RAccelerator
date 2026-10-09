@@ -1,69 +1,76 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import React, { useState } from "react";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
+import { Navbar } from "@/components/Navbar";
+import { Hero } from "@/components/Hero";
+import { StatsBar } from "@/components/StatsBar";
+import { RegulatoryProcessPipeline } from "@/components/RegulatoryProcessPipeline";
+import { Capabilities } from "@/components/Capabilities";
+import { WhyRAccelerator } from "@/components/WhyRAccelerator";
+import { TrustedBy } from "@/components/TrustedBy";
+import { SecuritySection } from "@/components/SecuritySection";
+import { FaqSection } from "@/components/FaqSection";
+import { Footer } from "@/components/Footer";
+import { RaxyWidget } from "@/components/RaxyWidget";
+import { Modals } from "@/components/Modals";
 
 export default function Home() {
+  const [demoOpen, setDemoOpen] = useState(false);
+  const [assessmentOpen, setAssessmentOpen] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <ThemeProvider>
+      <div style={{ minHeight: "100vh", position: "relative" }}>
+        {/* Animated Dynamic Canvas Particle Background (replaces static square grid) */}
+        <AnimatedBackground />
+
+        {/* Dynamic Floating Glass Island Navigation */}
+        <Navbar
+          onOpenDemo={() => setDemoOpen(true)}
+          onOpenSignIn={() => setSignInOpen(true)}
         />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.tsx</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+
+        {/* Main Landing Sections */}
+        <main style={{ position: "relative", zIndex: 1 }}>
+          <Hero
+            onStartAssessment={() => setAssessmentOpen(true)}
+            onBookDemo={() => setDemoOpen(true)}
+          />
+
+          <StatsBar />
+
+          <RegulatoryProcessPipeline />
+
+          <Capabilities />
+
+          <WhyRAccelerator />
+
+          <TrustedBy />
+
+          <SecuritySection />
+
+          <FaqSection />
+        </main>
+
+        {/* Footer */}
+        <Footer />
+
+        {/* Floating RAxy AI Agent Assistant Widget */}
+        <RaxyWidget />
+
+        {/* Interactive Experience Modals */}
+        <Modals
+          demoOpen={demoOpen}
+          onCloseDemo={() => setDemoOpen(false)}
+          assessmentOpen={assessmentOpen}
+          onCloseAssessment={() => setAssessmentOpen(false)}
+          signInOpen={signInOpen}
+          onCloseSignIn={() => setSignInOpen(false)}
+        />
+      </div>
+    </ThemeProvider>
   );
 }
