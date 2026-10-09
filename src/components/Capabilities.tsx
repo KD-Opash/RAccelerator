@@ -318,59 +318,148 @@ export function Capabilities() {
             </AnimatePresence>
           </div>
 
-          {/* 3D WebGL Animation Stage (Expanded Height - No Bottom Cutoff) */}
+          {/* REALISTIC 3D MACBOOK PRO LAPTOP MOCKUP CONTAINER */}
           <div
             style={{
               position: "relative",
               width: "100%",
-              minHeight: "420px",
-              height: "420px",
+              borderRadius: "26px 26px 14px 14px",
+              padding: "16px 16px 6px",
+              background: isDark
+                ? "linear-gradient(165deg, #1e293b 0%, #0f172a 50%, #09171b 100%)"
+                : "linear-gradient(165deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%)",
+              border: isDark ? "2px solid rgba(110, 255, 206, 0.4)" : "2px solid rgba(5, 150, 105, 0.35)",
+              boxShadow: isDark
+                ? "0 40px 100px rgba(0, 0, 0, 0.9), 0 0 60px rgba(110, 255, 206, 0.18), inset 0 0 20px rgba(110, 255, 206, 0.15)"
+                : "0 30px 80px rgba(0, 0, 0, 0.12), 0 0 50px rgba(5, 150, 105, 0.1), inset 0 0 20px rgba(255, 255, 255, 0.9)",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: "transparent",
-              border: "none",
-              padding: "0px",
+              flexDirection: "column",
+              justifyContent: "space-between",
             }}
           >
-            <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-              {[
-                GsprHealthScene,
-                DeviceClassificationScene,
-                RemediationTimelineScene,
-                DocumentParserScene,
-                ReportingRadarScene,
-                TraceabilityVaultScene,
-              ].map((SceneComponent, idx) => {
-                const isCurrent = activeCapability === idx;
-                return (
-                  <motion.div
-                    key={idx}
-                    initial={false}
-                    animate={{
-                      opacity: isCurrent ? 1 : 0,
-                      scale: isCurrent ? 1 : 0.95,
-                      filter: isCurrent ? "blur(0px)" : "blur(6px)",
-                    }}
-                    transition={{
-                      duration: 0.45,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    style={{
-                      position: isCurrent ? "relative" : "absolute",
-                      inset: 0,
-                      width: "100%",
-                      pointerEvents: isCurrent ? "auto" : "none",
-                      visibility: isCurrent ? "visible" : "hidden",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
-                    <SceneComponent />
-                  </motion.div>
-                );
-              })}
+            {/* Top Laptop Camera Web Notched Bar */}
+            <div
+              style={{
+                position: "absolute",
+                top: "6px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "80px",
+                height: "8px",
+                background: "#000",
+                borderRadius: "0 0 6px 6px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "6px",
+                zIndex: 10,
+              }}
+            >
+              <span style={{ width: "3.5px", height: "3.5px", borderRadius: "50%", background: "#10b981" }} />
+              <span style={{ width: "3px", height: "3px", borderRadius: "50%", background: "#38bdf8" }} />
+            </div>
+
+            {/* MACBOOK DISPLAY SCREEN CONTAINER */}
+            <div
+              className="glass-panel"
+              style={{
+                borderRadius: "20px 20px 8px 8px",
+                padding: "16px 18px 12px",
+                position: "relative",
+                background: isDark ? "var(--bg-card)" : "#ffffff",
+                backdropFilter: "blur(28px)",
+                border: isDark ? "1px solid rgba(255, 255, 255, 0.1)" : "1px solid rgba(5, 150, 105, 0.18)",
+                boxShadow: isDark ? "none" : "0 10px 30px rgba(0, 0, 0, 0.04)",
+                overflow: "hidden",
+              }}
+            >
+              {/* macOS Window Control Bar */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "12px",
+                  paddingBottom: "8px",
+                  borderBottom: isDark ? "1px solid var(--border-subtle)" : "1px solid rgba(5, 150, 105, 0.12)",
+                  flexWrap: "wrap",
+                  gap: "10px",
+                }}
+              >
+                {/* macOS Traffic Light Buttons */}
+                <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+                  <span style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#ff5f56", border: "1px solid #e0443e", display: "inline-block" }} />
+                  <span style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#ffbd2e", border: "1px solid #dea123", display: "inline-block" }} />
+                  <span style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#27c93f", border: "1px solid #1aab29", display: "inline-block" }} />
+                  <span style={{ fontSize: "11px", fontWeight: 800, color: isDark ? "#6effce" : "#059669", marginLeft: "6px", fontFamily: "var(--font-mono)" }}>
+                    macOS Workstation v2.4
+                  </span>
+                </div>
+
+                {/* User Profile Chip */}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ fontSize: "10px", color: isDark ? "#94a3b8" : "#64748b", fontFamily: "var(--font-mono)", fontWeight: 700 }}>
+                    @raccelerator PRO
+                  </span>
+                  <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: isDark ? "#34d399" : "#059669", boxShadow: "0 0 8px #34d399" }} />
+                </div>
+              </div>
+
+              {/* 3D WebGL Animation Stage (Expanded Height - No Bottom Cutoff) */}
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  minHeight: "360px",
+                  height: "360px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "transparent",
+                  border: "none",
+                  padding: "0px",
+                }}
+              >
+                <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                  {[
+                    GsprHealthScene,
+                    DeviceClassificationScene,
+                    RemediationTimelineScene,
+                    DocumentParserScene,
+                    ReportingRadarScene,
+                    TraceabilityVaultScene,
+                  ].map((SceneComponent, idx) => {
+                    const isCurrent = activeCapability === idx;
+                    return (
+                      <motion.div
+                        key={idx}
+                        initial={false}
+                        animate={{
+                          opacity: isCurrent ? 1 : 0,
+                          scale: isCurrent ? 1 : 0.95,
+                          filter: isCurrent ? "blur(0px)" : "blur(6px)",
+                        }}
+                        transition={{
+                          duration: 0.45,
+                          ease: [0.22, 1, 0.36, 1],
+                        }}
+                        style={{
+                          position: isCurrent ? "relative" : "absolute",
+                          inset: 0,
+                          width: "100%",
+                          pointerEvents: isCurrent ? "auto" : "none",
+                          visibility: isCurrent ? "visible" : "hidden",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <SceneComponent />
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
