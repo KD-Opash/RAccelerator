@@ -38,14 +38,14 @@ export default function AstralShellCanvas() {
     window.addEventListener("resize", handleResize);
 
     // Generate 3D Fibonacci Sphere Point Distribution for Astral Shell
-    const numPoints = 130;
+    const numPoints = 65;
     const radius = Math.min(width, height) * 0.38;
     const nodes: Node3D[] = [];
 
     const phi = Math.PI * (3 - Math.sqrt(5)); // Golden ratio angle
 
     for (let i = 0; i < numPoints; i++) {
-      const y = 1 - (i / (numPoints - 1)) * 2; // y goes from 1 to -1
+      const y = 1 - (i / (numPoints - 1)) * 2;
       const radiusAtY = Math.sqrt(1 - y * y);
       const theta = phi * i;
 
@@ -73,7 +73,15 @@ export default function AstralShellCanvas() {
     const secondaryColor = isDark ? "#38bdf8" : "#0284c7";
     const nodeColor = isDark ? "#ffffff" : "#10b981";
 
+    const maxDistance = radius * 0.72;
+    const maxDistSq = maxDistance * maxDistance;
+
     const render = () => {
+      if (document.hidden) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
+
       ctx.clearRect(0, 0, width, height);
 
       rotX += angleX;
@@ -114,9 +122,7 @@ export default function AstralShellCanvas() {
         projectedNodes.push({ x: projX, y: projY, z: z2, pulse });
       }
 
-      // Draw Constellation Mesh Web Lines (Connect close 3D neighbors)
-      const maxDistance = radius * 0.72;
-
+      // Draw Constellation Mesh Web Lines (Fast squared-distance check)
       for (let i = 0; i < projectedNodes.length; i++) {
         for (let j = i + 1; j < projectedNodes.length; j++) {
           const p1 = projectedNodes[i];
@@ -125,9 +131,10 @@ export default function AstralShellCanvas() {
           const dx = p1.x - p2.x;
           const dy = p1.y - p2.y;
           const dz = p1.z - p2.z;
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+          const distSq = dx * dx + dy * dy + dz * dz;
 
-          if (dist < maxDistance) {
+          if (distSq < maxDistSq) {
+            const dist = Math.sqrt(distSq);
             const alpha = (1 - dist / maxDistance) * 0.55 * ((p1.z + radius) / (radius * 2));
             if (alpha > 0.02) {
               ctx.beginPath();
@@ -142,8 +149,7 @@ export default function AstralShellCanvas() {
         }
       }
 
-      // Draw Glowing Astral Constellation Point Nodes
-      ctx.globalAlpha = 1;
+      // Draw Glowing Astral Constellation Point Nodes (No slow shadowBlur)
       for (let i = 0; i < projectedNodes.length; i++) {
         const p = projectedNodes[i];
         const alpha = Math.max(0.15, (p.z + radius) / (radius * 2));
@@ -153,18 +159,9 @@ export default function AstralShellCanvas() {
         ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
         ctx.fillStyle = p.z > 20 ? nodeColor : primaryColor;
         ctx.globalAlpha = alpha;
-
-        if (p.z > 30) {
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = primaryColor;
-        } else {
-          ctx.shadowBlur = 0;
-        }
-
         ctx.fill();
       }
 
-      ctx.shadowBlur = 0;
       animationFrameId = requestAnimationFrame(render);
     };
 

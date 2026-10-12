@@ -20,11 +20,11 @@ export function AnimatedBackground() {
 
     const isDark = theme === "dark";
 
-    // 100% Full-Width & Full-Height Grid Matrix Settings
-    const SEPARATION_X = 26;
-    const SEPARATION_Z = 26;
-    const AMOUNT_X = Math.max(170, Math.floor(width / 9));
-    const AMOUNT_Z = 95; // Deep Z-grid coverage spanning top to bottom height
+    // Optimized Grid Matrix Settings: Smooth 60fps on Windows & Integrated GPUs
+    const SEPARATION_X = 42;
+    const SEPARATION_Z = 42;
+    const AMOUNT_X = Math.min(45, Math.max(28, Math.floor(width / 38)));
+    const AMOUNT_Z = 28;
 
     let count = 0;
 
@@ -36,9 +36,14 @@ export function AnimatedBackground() {
     window.addEventListener("resize", handleResize);
 
     const render = () => {
+      if (document.hidden) {
+        animationFrameId = requestAnimationFrame(render);
+        return;
+      }
+
       ctx.clearRect(0, 0, width, height);
 
-      // Ambient Luminous Blue Light Glow Fill (Blue Light Atmosphere)
+      // Ambient Luminous Blue Light Glow Fill
       const blueGlow = ctx.createRadialGradient(
         width / 2,
         height * 0.45,
@@ -48,9 +53,9 @@ export function AnimatedBackground() {
         Math.max(width, height) * 0.75
       );
       if (isDark) {
-        blueGlow.addColorStop(0, "rgba(14, 165, 233, 0.16)");  // Bright Cyan Blue Light Core
-        blueGlow.addColorStop(0.45, "rgba(37, 99, 235, 0.08)"); // Soft Indigo Blue
-        blueGlow.addColorStop(1, "rgba(2, 12, 24, 0.4)");      // Dark Ambient Edge
+        blueGlow.addColorStop(0, "rgba(14, 165, 233, 0.16)");
+        blueGlow.addColorStop(0.45, "rgba(37, 99, 235, 0.08)");
+        blueGlow.addColorStop(1, "rgba(2, 12, 24, 0.4)");
       } else {
         blueGlow.addColorStop(0, "rgba(56, 189, 248, 0.12)");
         blueGlow.addColorStop(0.5, "rgba(14, 165, 233, 0.05)");
@@ -60,77 +65,59 @@ export function AnimatedBackground() {
       ctx.fillRect(0, 0, width, height);
 
       const centerX = width / 2;
-      const centerY = height * 0.28; // Center horizon angle to sweep 100% full height and width
+      const centerY = height * 0.28;
       const fov = 390;
 
-      count += 0.026; // Continuous smooth wave animation
+      count += 0.022;
 
-      // Vibrant Green & Mint Glow Color Palette (matching reference)
-      const colorEmerald = isDark ? [52, 211, 153] : [16, 185, 129]; // Glowing Mint Green (#34d399 / #10b981)
-      const colorMint = isDark ? [110, 255, 206] : [5, 150, 105];   // Bright Neon Mint (#6effce / #059669)
+      const colorEmerald = isDark ? "52, 211, 153" : "16, 185, 129";
+      const colorMint = isDark ? "110, 255, 206" : "5, 150, 105";
+
+      ctx.lineWidth = 0.8;
 
       for (let ix = 0; ix < AMOUNT_X; ix++) {
         for (let iz = 0; iz < AMOUNT_Z; iz++) {
-          // World coordinates centered
           const x = (ix - AMOUNT_X / 2) * SEPARATION_X;
-          const z = iz * SEPARATION_Z + 15;
+          const z = iz * SEPARATION_Z + 20;
 
-          // Continuous multi-harmonic 3D wave calculation for smooth organic terrain
           const waveY =
-            Math.sin((ix + count * 1.3) * 0.15) * 38 +
-            Math.sin((iz + count * 1.6) * 0.13) * 38 +
-            Math.cos((ix + iz + count * 1.0) * 0.1) * 24;
+            Math.sin((ix + count * 1.2) * 0.2) * 32 +
+            Math.sin((iz + count * 1.4) * 0.18) * 32;
 
-          // Elevation offset
           const y = 50 + waveY;
 
-          // 3D Projection to 2D Screen Space
           const scale = fov / (fov + z);
           const projX = centerX + x * scale;
           const projY = centerY + y * scale;
 
-          if (projX < -350 || projX > width + 350 || projY < -250 || projY > height + 250) {
+          if (projX < -100 || projX > width + 100 || projY < -100 || projY > height + 100) {
             continue;
           }
 
-          // Depth opacity fade - soft ambient glow for high UI contrast
           const depthRatio = 1 - iz / AMOUNT_Z;
-          const alpha = Math.max(0.04, depthRatio * depthRatio * (isDark ? 0.32 : 0.22));
-          const particleRadius = Math.max(0.6, 2.5 * scale);
+          const alpha = depthRatio * depthRatio * (isDark ? 0.35 : 0.25);
+          const particleRadius = Math.max(0.8, 2.2 * scale);
 
-          // Luminous color blend based on wave peaks
-          const waveRatio = (Math.sin(ix * 0.14 + iz * 0.09 + count * 1.2) + 1) / 2;
-          const r = Math.round(colorEmerald[0] * (1 - waveRatio) + colorMint[0] * waveRatio);
-          const g = Math.round(colorEmerald[1] * (1 - waveRatio) + colorMint[1] * waveRatio);
-          const b = Math.round(colorEmerald[2] * (1 - waveRatio) + colorMint[2] * waveRatio);
-
-          // Render glowing green particle dot
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+          // Render particle dot
+          ctx.fillStyle = `rgba(${iz % 2 === 0 ? colorMint : colorEmerald}, ${alpha})`;
           ctx.beginPath();
           ctx.arc(projX, projY, particleRadius, 0, Math.PI * 2);
           ctx.fill();
 
-          // Connect X-neighbor particles with soft ambient grid lines
+          // Connect neighbor line
           if (ix < AMOUNT_X - 1) {
             const nextX = (ix + 1 - AMOUNT_X / 2) * SEPARATION_X;
             const nextWaveY =
-              Math.sin((ix + 1 + count * 1.3) * 0.15) * 38 +
-              Math.sin((iz + count * 1.6) * 0.13) * 38 +
-              Math.cos((ix + 1 + iz + count * 1.0) * 0.1) * 24;
-            const nextY = 50 + nextWaveY;
+              Math.sin((ix + 1 + count * 1.2) * 0.2) * 32 +
+              Math.sin((iz + count * 1.4) * 0.18) * 32;
+            const nextProjX = centerX + nextX * scale;
+            const nextProjY = centerY + (50 + nextWaveY) * scale;
 
-            const nextScale = fov / (fov + z);
-            const nextProjX = centerX + nextX * nextScale;
-            const nextProjY = centerY + nextY * nextScale;
-
-            if (Math.abs(projX - nextProjX) < 170) {
-              ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.15})`;
-              ctx.lineWidth = 0.5 * scale;
-              ctx.beginPath();
-              ctx.moveTo(projX, projY);
-              ctx.lineTo(nextProjX, nextProjY);
-              ctx.stroke();
-            }
+            ctx.strokeStyle = `rgba(${colorMint}, ${alpha * 0.2})`;
+            ctx.beginPath();
+            ctx.moveTo(projX, projY);
+            ctx.lineTo(nextProjX, nextProjY);
+            ctx.stroke();
           }
         }
       }
@@ -156,9 +143,7 @@ export function AnimatedBackground() {
         height: "100vh",
         pointerEvents: "none",
         zIndex: 0,
-        opacity: 0.22,
-        filter: "blur(2px)",
-        WebkitFilter: "blur(2px)",
+        opacity: 0.3,
         transition: "opacity 0.3s ease",
       }}
     />

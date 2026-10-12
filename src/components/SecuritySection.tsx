@@ -10,13 +10,37 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
   const [hoveredCardIdx, setHoveredCardIdx] = useState<number | null>(null);
   const [radius, setRadius] = useState(640);
   const [cardWidth, setCardWidth] = useState(300);
-  const [currentAngle, setCurrentAngle] = useState(0);
   const angleRef = useRef(0);
   const isHoveredRef = useRef(false);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Duplicate items to form a 12-card continuous 3D ring (matching image 2 spacing)
+  // Duplicate items to form a 12-card continuous 3D ring
   const displayItems = useRef([...items, ...items]).current;
   const total = displayItems.length; // 12
+
+  const updateCardTransforms = (angle: number, currentRadius: number) => {
+    const angleStep = 360 / total;
+    for (let idx = 0; idx < total; idx++) {
+      const el = cardRefs.current[idx];
+      if (!el) continue;
+      const cardBaseAngle = idx * angleStep;
+      const totalAngle = (cardBaseAngle + angle) % 360;
+      const relAngle = ((totalAngle % 360) + 540) % 360 - 180;
+      const radAngle = (relAngle * Math.PI) / 180;
+      const cosVal = Math.cos(radAngle);
+      const x = Math.sin(radAngle) * currentRadius;
+      const z = cosVal * currentRadius - currentRadius;
+      const rawOpacity = (cosVal + 0.45) / 1.45;
+      const opacity = Math.max(0, Math.min(1, rawOpacity));
+      const isCardHovered = hoveredCardIdx === idx;
+      const scale = isCardHovered ? 1.08 : Math.max(0.82, 0.82 + Math.max(0, cosVal) * 0.18);
+      const zIndex = isCardHovered ? 300 : Math.round((cosVal + 1) * 100);
+
+      el.style.transform = `translate3d(${x.toFixed(1)}px, 0px, ${z.toFixed(1)}px) rotateY(${relAngle.toFixed(1)}deg) scale(${scale.toFixed(2)})`;
+      el.style.opacity = `${opacity.toFixed(2)}`;
+      el.style.zIndex = `${zIndex}`;
+    }
+  };
 
   useEffect(() => {
     isHoveredRef.current = isHovered;
@@ -24,16 +48,18 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
 
   useEffect(() => {
     const handleResize = () => {
+      let r = 640;
+      let w = 300;
       if (window.innerWidth < 640) {
-        setRadius(300);
-        setCardWidth(230);
+        r = 300;
+        w = 230;
       } else if (window.innerWidth < 1024) {
-        setRadius(450);
-        setCardWidth(260);
-      } else {
-        setRadius(640);
-        setCardWidth(300);
+        r = 450;
+        w = 260;
       }
+      setRadius(r);
+      setCardWidth(w);
+      updateCardTransforms(angleRef.current, r);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -48,21 +74,20 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
       const delta = Math.min(now - lastTime, 50);
       lastTime = now;
 
-      // Lock rotation immediately on hover so cards stay frozen at exact position
-      if (!isHoveredRef.current) {
+      if (!isHoveredRef.current && !document.hidden) {
         angleRef.current = (angleRef.current + delta * 0.005) % 360;
-        setCurrentAngle(angleRef.current);
+        updateCardTransforms(angleRef.current, radius);
       }
       animId = requestAnimationFrame(loop);
     };
 
     animId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(animId);
-  }, []);
+  }, [radius]);
 
   const handlePan = (_e: any, info: any) => {
     angleRef.current = (angleRef.current - info.delta.x * 0.2) % 360;
-    setCurrentAngle(angleRef.current);
+    updateCardTransforms(angleRef.current, radius);
   };
 
   return (
@@ -109,27 +134,12 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
         >
           {displayItems.map((item, idx) => {
             const Icon = item.icon;
-            const angleStep = 360 / total; // 30 deg
-            const cardBaseAngle = idx * angleStep;
-            const totalAngle = (cardBaseAngle + currentAngle) % 360;
-            let relAngle = ((totalAngle % 360) + 540) % 360 - 180;
-
-            const radAngle = (relAngle * Math.PI) / 180;
-            const x = Math.sin(radAngle) * radius;
-            const z = Math.cos(radAngle) * radius - radius;
-            const rotateY = relAngle;
-
-            const cosVal = Math.cos(radAngle);
-            // Continuous smooth opacity fade across front cylinder arc (0 blinking)
-            const rawOpacity = (cosVal + 0.45) / 1.45;
-            const opacity = Math.max(0, Math.min(1, rawOpacity));
             const isCardHovered = hoveredCardIdx === idx;
-            const scale = isCardHovered ? 1.08 : Math.max(0.82, 0.82 + Math.max(0, cosVal) * 0.18);
-            const zIndex = isCardHovered ? 300 : Math.round((cosVal + 1) * 100);
 
             return (
               <div
                 key={`${item.title}-${idx}`}
+                ref={(el) => { cardRefs.current[idx] = el; }}
                 onMouseEnter={() => setHoveredCardIdx(idx)}
                 onMouseLeave={() => setHoveredCardIdx(null)}
                 style={{
@@ -138,9 +148,6 @@ function Circular3DCarousel({ items, isDark }: { items: any[]; isDark: boolean }
                   height: "235px",
                   borderRadius: "20px",
                   padding: "24px",
-                  zIndex,
-                  transform: `translate3d(${x}px, 0px, ${z}px) rotateY(${rotateY}deg) scale(${scale})`,
-                  opacity,
                   willChange: "transform, opacity",
                   transition: isHovered
                     ? "transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease"
