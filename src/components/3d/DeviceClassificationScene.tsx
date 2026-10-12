@@ -2,7 +2,7 @@
 
 import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, OrbitControls, Sphere, Cylinder, Points, PointMaterial } from "@react-three/drei";
+import { Float, OrbitControls, Sphere, Points, PointMaterial, Instances, Instance } from "@react-three/drei";
 import * as THREE from "three";
 import { useTheme } from "../ThemeProvider";
 
@@ -22,9 +22,9 @@ function GlowingConstellationNetworkSphere() {
   const outerSpikesGroupRef = useRef<THREE.Group>(null!);
   const glitterGroupRef = useRef<THREE.Group>(null!);
 
-  // 2. Multi-layered Galaxy Stardust Particle Fields & Cosmic Dust
+  // Optimized Particle Counts for smooth 60fps on Windows & mobile GPUs
   const galaxyDustInner = useMemo(() => {
-    const count = 350;
+    const count = 180;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       const theta = Math.random() * Math.PI * 2;
@@ -38,7 +38,7 @@ function GlowingConstellationNetworkSphere() {
   }, []);
 
   const galaxySpiralArm = useMemo(() => {
-    const count = 450;
+    const count = 220;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 4;
@@ -54,7 +54,7 @@ function GlowingConstellationNetworkSphere() {
   }, []);
 
   const cosmicStarlight = useMemo(() => {
-    const count = 250;
+    const count = 130;
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       const theta = Math.random() * Math.PI * 2;
@@ -70,7 +70,7 @@ function GlowingConstellationNetworkSphere() {
   // Floating Cosmic Node Orbs (Soft glowing galaxy nodes)
   const cosmicNodes = useMemo(() => {
     const nodes = [];
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 20; i++) {
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
       const r = 1.4 + Math.random() * 0.9;
@@ -101,6 +101,7 @@ function GlowingConstellationNetworkSphere() {
         points.push([x, y, z]);
       }
     }
+    geo.dispose();
     return points;
   }, []);
 
@@ -141,18 +142,16 @@ function GlowingConstellationNetworkSphere() {
         {/* 1. CENTRAL GLOWING GEODESIC MESH SPHERE */}
         <mesh ref={innerSphereRef}>
           <icosahedronGeometry args={[1.15, 2]} />
-          <meshStandardMaterial
+          <meshBasicMaterial
             color={primaryAccent}
-            emissive={primaryAccent}
-            emissiveIntensity={0.85}
             wireframe
-            roughness={0.1}
-            metalness={0.9}
+            transparent
+            opacity={0.85}
           />
         </mesh>
 
         {/* 2. INNER CORE GLOBE (TRANSPARENT GLASS) */}
-        <Sphere args={[0.98, 32, 32]}>
+        <Sphere args={[0.98, 20, 20]}>
           <meshStandardMaterial
             color={innerGlobeColor}
             emissive={primaryAccent}
@@ -164,28 +163,32 @@ function GlowingConstellationNetworkSphere() {
           />
         </Sphere>
 
-        {/* 3. VERTEX LIGHT NODES (BRIGHT LIGHT SPHERES AT EVERY MESH NODE) */}
-        {sphereVertices.map((v, idx) => (
-          <Sphere key={idx} args={[0.048, 12, 12]} position={v}>
-            <meshStandardMaterial
-              color={whiteColor}
-              emissive={idx % 2 === 0 ? primaryAccent : whiteColor}
-              emissiveIntensity={1.2}
+        {/* 3. VERTEX LIGHT NODES (GPU Instanced - 1 single draw call instead of 42 individual meshes) */}
+        <Instances limit={sphereVertices.length} range={sphereVertices.length}>
+          <sphereGeometry args={[0.048, 8, 8]} />
+          <meshBasicMaterial toneMapped={false} />
+          {sphereVertices.map((v, idx) => (
+            <Instance
+              key={idx}
+              position={v}
+              color={idx % 2 === 0 ? primaryAccent : whiteColor}
             />
-          </Sphere>
-        ))}
+          ))}
+        </Instances>
 
-        {/* 4. FLOATING GALAXY ORB NODES */}
-        {cosmicNodes.map((node, idx) => (
-          <Sphere key={idx} args={[node.size, 16, 16]} position={node.pos}>
-            <meshStandardMaterial
+        {/* 4. FLOATING GALAXY ORB NODES (GPU Instanced - 1 single draw call instead of 22 individual meshes) */}
+        <Instances limit={cosmicNodes.length} range={cosmicNodes.length}>
+          <sphereGeometry args={[1, 8, 8]} />
+          <meshBasicMaterial toneMapped={false} />
+          {cosmicNodes.map((node, idx) => (
+            <Instance
+              key={idx}
+              position={node.pos}
+              scale={node.size}
               color={node.color}
-              emissive={node.color}
-              emissiveIntensity={1.3}
-              roughness={0.05}
             />
-          </Sphere>
-        ))}
+          ))}
+        </Instances>
 
         {/* 5. GALAXY SPIRAL ARM DUST RING */}
         <group ref={outerSpikesGroupRef}>
@@ -236,11 +239,22 @@ export default function DeviceClassificationScene() {
 
   return (
     <div style={{ width: "100%", height: "320px", position: "relative" }}>
-      <Canvas camera={{ position: [0, 0, 5.2], fov: 45 }} style={{ background: "transparent" }}>
-        <ambientLight intensity={isDark ? 1.3 : 1.7} />
-        <pointLight position={[6, 6, 6]} intensity={2.8} color="#ffffff" />
-        <directionalLight position={[5, 8, 5]} intensity={2.4} color={isDark ? "#6effce" : "#059669"} />
-        <directionalLight position={[-5, -5, -5]} intensity={1.5} color={isDark ? "#38bdf8" : "#2563eb"} />
+      <Canvas
+        camera={{ position: [0, 0, 5.2], fov: 45 }}
+        dpr={[1, 1.5]}
+        gl={{
+          powerPreference: "high-performance",
+          antialias: false,
+          alpha: true,
+          stencil: false,
+          depth: true,
+        }}
+        style={{ background: "transparent" }}
+      >
+        <ambientLight intensity={isDark ? 1.2 : 1.5} />
+        <pointLight position={[6, 6, 6]} intensity={2.2} color="#ffffff" />
+        <directionalLight position={[5, 8, 5]} intensity={2.0} color={isDark ? "#6effce" : "#059669"} />
+        <directionalLight position={[-5, -5, -5]} intensity={1.2} color={isDark ? "#38bdf8" : "#2563eb"} />
         <GlowingConstellationNetworkSphere />
         <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 1.8} minPolarAngle={Math.PI / 2.2} />
       </Canvas>

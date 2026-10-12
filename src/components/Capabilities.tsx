@@ -421,43 +421,30 @@ export function Capabilities() {
                 }}
               >
                 <div style={{ position: "relative", width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                  {[
-                    GsprHealthScene,
-                    DeviceClassificationScene,
-                    RemediationTimelineScene,
-                    DocumentParserScene,
-                    ReportingRadarScene,
-                    TraceabilityVaultScene,
-                  ].map((SceneComponent, idx) => {
-                    const isCurrent = activeCapability === idx;
-                    return (
-                      <motion.div
-                        key={idx}
-                        initial={false}
-                        animate={{
-                          opacity: isCurrent ? 1 : 0,
-                          scale: isCurrent ? 1 : 0.95,
-                          filter: isCurrent ? "blur(0px)" : "blur(6px)",
-                        }}
-                        transition={{
-                          duration: 0.45,
-                          ease: [0.22, 1, 0.36, 1],
-                        }}
-                        style={{
-                          position: isCurrent ? "relative" : "absolute",
-                          inset: 0,
-                          width: "100%",
-                          pointerEvents: isCurrent ? "auto" : "none",
-                          visibility: isCurrent ? "visible" : "hidden",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <SceneComponent />
-                      </motion.div>
-                    );
-                  })}
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={activeCapability}
+                      initial={{ opacity: 0, scale: 0.96 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.96 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      {activeCapability === 0 && <GsprHealthScene />}
+                      {activeCapability === 1 && <DeviceClassificationScene />}
+                      {activeCapability === 2 && <RemediationTimelineScene />}
+                      {activeCapability === 3 && <DocumentParserScene />}
+                      {activeCapability === 4 && <ReportingRadarScene />}
+                      {activeCapability === 5 && <TraceabilityVaultScene />}
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
               </div>
             </div>

@@ -249,7 +249,12 @@ export default function ReportingRadarScene() {
 
   return (
     <div style={{ width: "100%", height: "320px", position: "relative" }}>
-      <Canvas camera={{ position: [0, 0, 5.2], fov: 45 }} style={{ background: "transparent" }}>
+      <Canvas
+        camera={{ position: [0, 0, 5.2], fov: 45 }}
+        dpr={[1, 1.5]}
+        gl={{ powerPreference: "high-performance", antialias: false, alpha: true }}
+        style={{ background: "transparent" }}
+      >
         <ambientLight intensity={isDark ? 1.3 : 1.7} />
         <pointLight position={[6, 6, 6]} intensity={2.8} color="#ffffff" />
         <directionalLight position={[5, 8, 5]} intensity={2.5} color={isDark ? "#38bdf8" : "#059669"} />
