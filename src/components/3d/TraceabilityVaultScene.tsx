@@ -79,10 +79,8 @@ function PolygonTunnelVortex() {
           <group key={idx} position={[0, 0, layer.z]} rotation={[0, 0, layer.rotZ]}>
             {/* Outer Octagon Wireframe Ring */}
             <Cylinder args={[layer.radius, layer.radius, 0.05, 8, 1, true]}>
-              <meshStandardMaterial
+              <meshBasicMaterial
                 color={layer.color}
-                emissive={layer.color}
-                emissiveIntensity={1.05}
                 wireframe
                 transparent
                 opacity={layer.opacity}
@@ -91,10 +89,8 @@ function PolygonTunnelVortex() {
 
             {/* Inner Fine Accent Ring */}
             <Cylinder args={[layer.radius * 0.96, layer.radius * 0.96, 0.02, 8, 1, true]}>
-              <meshStandardMaterial
+              <meshBasicMaterial
                 color={whiteColor}
-                emissive={whiteColor}
-                emissiveIntensity={0.8}
                 wireframe
                 transparent
                 opacity={layer.opacity * 0.7}

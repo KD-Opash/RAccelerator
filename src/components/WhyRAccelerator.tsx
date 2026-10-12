@@ -46,10 +46,13 @@ function GalaxyGlitterCanvas() {
     let time = 0;
 
     const render = () => {
+      if (document.hidden) {
+        animationId = requestAnimationFrame(render);
+        return;
+      }
+
       ctx.clearRect(0, 0, width, height);
       time += 0.03;
-
-      // Pure Transparent Ambient Canvas (Matching Capabilities Section Background)
 
       // Draw Twinkling Galaxy Particle Points
       for (let i = 0; i < starCount; i++) {
@@ -68,12 +71,9 @@ function GalaxyGlitterCanvas() {
         ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
         ctx.fillStyle = s.color;
         ctx.globalAlpha = alpha;
-        ctx.shadowColor = s.color;
-        ctx.shadowBlur = s.radius * 2;
         ctx.fill();
-        ctx.globalAlpha = 1.0;
-        ctx.shadowBlur = 0;
       }
+      ctx.globalAlpha = 1.0;
 
       animationId = requestAnimationFrame(render);
     };
